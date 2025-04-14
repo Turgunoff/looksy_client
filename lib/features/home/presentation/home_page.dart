@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:looksy_client/features/home/data/salon_repository.dart';
 import 'package:looksy_client/features/home/models/salon_model.dart';
+import 'package:looksy_client/features/home/presentation/supabase_test_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -63,6 +64,8 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      // Supabase test widget
+                      const SupabaseTestWidget(),
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 200,

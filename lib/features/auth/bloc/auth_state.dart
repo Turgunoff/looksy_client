@@ -23,6 +23,12 @@ class Authenticated extends AuthState {
 }
 
 class Unauthenticated extends AuthState {
-  Unauthenticated({String? error})
-    : super(AuthStateModel(status: AuthStatus.unauthenticated, error: error));
+  Unauthenticated({String? error, String? message})
+    : super(
+        AuthStateModel(
+          status: AuthStatus.unauthenticated,
+          error: error,
+          message: message,
+        ),
+      );
 }

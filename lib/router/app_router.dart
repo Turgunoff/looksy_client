@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:looksy_client/features/auth/presentation/login_page.dart';
+import 'package:looksy_client/features/auth/presentation/signup_page.dart';
 import 'package:looksy_client/features/bookings/presentation/bookings_page.dart';
 import 'package:looksy_client/features/chat/presentation/chat_page.dart';
 import 'package:looksy_client/features/home/presentation/home_page.dart';
@@ -23,6 +24,7 @@ class AppRouter {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(path: '/signup', builder: (context, state) => const SignupPage()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return ScaffoldWithNavBar(navigationShell: navigationShell);
@@ -95,7 +97,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Qidiruv'),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            label: 'Bronlar'
+            label: 'Bronlar',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
