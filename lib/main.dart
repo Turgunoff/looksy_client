@@ -67,6 +67,7 @@ class MyApp extends StatelessWidget {
           }
 
           return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
             title: 'Looksy',
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:looksy_client/core/theme/app_theme.dart';
 import 'package:looksy_client/features/auth/bloc/auth_bloc_fixed.dart';
 import 'package:looksy_client/features/auth/bloc/auth_event.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
@@ -87,22 +88,22 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
+                Text(
                   'Looksy',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.pink,
+                    color: AppTheme.primaryColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
+                    prefixIcon: Icon(Icons.email, color: AppTheme.primaryColor),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
@@ -120,10 +121,10 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Parol',
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                    prefixIcon: Icon(Icons.lock, color: AppTheme.primaryColor),
                   ),
                   obscureText: true,
                   validator: (value) {
@@ -141,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   child:
                       _isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
@@ -149,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                               color: Colors.white,
                             ),
                           )
-                          : const Text('Kirish'),
+                          : Text('Kirish'),
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton(
@@ -171,18 +172,18 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             );
                           },
-                  child: const Text('Mehmon sifatida davom etish'),
+                  child: Text('Mehmon sifatida davom etish'),
                 ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Hisobingiz yo\'qmi?'),
+                    Text('Hisobingiz yo\'qmi?'),
                     TextButton(
                       onPressed: () {
                         context.go('/signup');
                       },
-                      child: const Text('Ro\'yxatdan o\'tish'),
+                      child: Text('Ro\'yxatdan o\'tish'),
                     ),
                   ],
                 ),

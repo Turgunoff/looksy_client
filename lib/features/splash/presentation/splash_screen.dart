@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:looksy_client/core/theme/app_theme.dart';
 import 'package:looksy_client/features/auth/bloc/auth_bloc_fixed.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -60,7 +61,10 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.pink.shade50, Colors.white],
+            colors: [
+              Color(0xFFE0F2F1), // Teal rangining juda och varianti
+              Colors.white,
+            ],
           ),
         ),
         child: Center(
@@ -80,14 +84,18 @@ class _SplashScreenState extends State<SplashScreen>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.pink.withAlpha(76),
+                          color: AppTheme.primaryColor.withAlpha(76),
                           blurRadius: 20,
                           spreadRadius: 5,
                         ),
                       ],
                     ),
-                    child: const Center(
-                      child: Icon(Icons.spa, size: 80, color: Colors.pink),
+                    child: Center(
+                      child: Icon(
+                        Icons.spa,
+                        size: 80,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                   ),
                 ),
@@ -96,12 +104,12 @@ class _SplashScreenState extends State<SplashScreen>
               // App name with fade-in animation
               FadeTransition(
                 opacity: _animation,
-                child: const Text(
+                child: Text(
                   'Looksy',
                   style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
-                    color: Colors.pink,
+                    color: AppTheme.primaryColor,
                   ),
                 ),
               ),
@@ -118,8 +126,8 @@ class _SplashScreenState extends State<SplashScreen>
               // Loading indicator
               FadeTransition(
                 opacity: _animation,
-                child: const SpinKitDoubleBounce(
-                  color: Colors.pink,
+                child: SpinKitDoubleBounce(
+                  color: AppTheme.primaryColor,
                   size: 40.0,
                 ),
               ),
