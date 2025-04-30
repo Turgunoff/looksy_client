@@ -34,9 +34,9 @@ migrate_working_dir/
 /build/
 
 # Environment variables
-.env
-.env.development
-.env.production
+# .env
+# .env.development
+# .env.production
 
 # Symbolication related
 app.*.symbols

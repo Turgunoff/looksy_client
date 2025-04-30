@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Looksy - Bosh Sahifa')),
+      backgroundColor: Colors.white,
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
