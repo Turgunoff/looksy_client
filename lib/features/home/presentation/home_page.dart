@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:looksy_client/features/home/data/salon_repository.dart';
 import 'package:looksy_client/features/home/models/salon_model.dart';
 import 'package:looksy_client/features/home/presentation/supabase_test_widget.dart';
@@ -23,6 +25,15 @@ class _HomePageState extends State<HomePage> {
       supabaseClient: Supabase.instance.client,
     );
     _loadSalons();
+
+    // Ensure proper status bar visibility
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
   }
 
   Future<void> _loadSalons() async {
@@ -48,6 +59,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        centerTitle: false,
+        title: const Text('Looksy'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Iconsax.notification_bing_bold),
+          ),
+        ],
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
