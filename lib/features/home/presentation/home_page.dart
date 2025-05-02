@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   late final SalonRepository _salonRepository;
   List<SalonModel> _salons = [];
   bool _isLoading = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -26,14 +27,20 @@ class _HomePageState extends State<HomePage> {
     );
     _loadSalons();
 
-    // Ensure proper status bar visibility
+    // Ensure proper status bar visibility with white background
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+        statusBarColor: Colors.white,
         statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSalons() async {
@@ -59,80 +66,203 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: false,
-        title: const Text('Looksy'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Iconsax.notification_bing_bold),
-          ),
-        ],
-      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              : _buildCustomScrollView(),
+    );
+  }
+
+  Widget _buildCustomScrollView() {
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          expandedHeight: 160,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Eng mashhur salonlar',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Good morning, Alex',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Tashkent',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blueGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      // Supabase test widget
-                      const SupabaseTestWidget(),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _salons.length,
-                          itemBuilder: (context, index) {
-                            final salon = _salons[index];
-                            return _buildSalonCard(salon);
-                          },
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Iconsax.notification_bing_bold,
+                          color: Colors.black87,
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Mashhur xizmatlar',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPopularServices(),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Yaqin atrofdagi salonlar',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _salons.length,
-                        itemBuilder: (context, index) {
-                          final salon = _salons[index];
-                          return _buildSalonListItem(salon);
-                        },
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Find barbers, stylists, or services',
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 16,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+
+                // Promotion banner
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    height: 160,
+                    width: double.infinity,
+                    color: const Color(0xFF1D2951),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          top: 0,
+                          child: Image.network(
+                            'https://i.ibb.co/DpLx5F9/barber.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '30% OFF',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'First Visit',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                const Text(
+                  'Eng mashhur salonlar',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _salons.length,
+                    itemBuilder: (context, index) {
+                      final salon = _salons[index];
+                      return _buildSalonCard(salon);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Mashhur xizmatlar',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildPopularServices(),
+                const SizedBox(height: 24),
+                const Text(
+                  'Yaqin atrofdagi salonlar',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _salons.length,
+                  itemBuilder: (context, index) {
+                    final salon = _salons[index];
+                    return _buildSalonListItem(salon);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

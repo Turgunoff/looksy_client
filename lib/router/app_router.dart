@@ -92,7 +92,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
 
     return Scaffold(
-      body: SafeArea(child: navigationShell),
+      body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: navigationShell.currentIndex,
