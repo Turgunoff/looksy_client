@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:looksy_client/features/auth/presentation/login_page.dart';
 import 'package:looksy_client/features/auth/presentation/signup_page.dart';
 import 'package:looksy_client/features/bookings/presentation/bookings_page.dart';
@@ -103,14 +104,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
           );
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Bosh Sahifa'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Qidiruv'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
+            icon: Icon(Iconsax.home),
+            label: 'Bosh Sahifa',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.search_normal),
+            label: 'Qidiruv',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.calendar),
             label: 'Bronlar',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(Iconsax.message), label: 'Chat'),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.profile_circle),
+            label: 'Profil',
+          ),
         ],
       ),
     );

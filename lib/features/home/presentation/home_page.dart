@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:icons_plus/icons_plus.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:looksy_client/features/home/data/salon_repository.dart';
 import 'package:looksy_client/features/home/models/salon_model.dart';
-import 'package:looksy_client/features/home/presentation/supabase_test_widget.dart';
+import 'package:looksy_client/features/location/services/location_service.dart';
+import 'package:looksy_client/features/profile/services/user_profile_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,17 +16,50 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final SalonRepository _salonRepository;
+  late final UserProfileService _userProfileService;
+  late final LocationService _locationService;
+
   List<SalonModel> _salons = [];
   bool _isLoading = true;
+  String _greeting = 'Доброе утро';
+  String? _userName;
+  bool _isLoggedIn = false;
+  String _currentStreet = 'улица Навои';
+  bool _isLocationEnabled = false;
+
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _salonRepository = SalonRepository(
-      supabaseClient: Supabase.instance.client,
-    );
+    // Initialize repositories and services
+    final supabaseClient = Supabase.instance.client;
+    _salonRepository = SalonRepository(supabaseClient: supabaseClient);
+    _userProfileService = UserProfileService(supabaseClient: supabaseClient);
+    _locationService = LocationService();
+
+    // Load data
+    _loadUserInfo();
     _loadSalons();
+    _initializeLocation();
+    _updateGreeting();
+
+    // Listen to location status changes
+    _locationService.locationStatusStream.listen((isEnabled) {
+      setState(() {
+        _isLocationEnabled = isEnabled;
+      });
+
+      // If location was just enabled, update the location display
+      if (isEnabled) {
+        _updateLocationDisplay();
+      }
+    });
+
+    // Listen to location updates
+    _locationService.locationStream.listen((position) {
+      _updateLocationDisplay();
+    });
 
     // Ensure proper status bar visibility with white background
     SystemChrome.setSystemUIOverlayStyle(
@@ -37,9 +71,81 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Load user information if logged in
+  Future<void> _loadUserInfo() async {
+    _isLoggedIn = _userProfileService.isUserLoggedIn();
+    if (_isLoggedIn) {
+      _userName = _userProfileService.getUserName();
+    }
+    setState(() {});
+  }
+
+  // Initialize location service and get current location
+  Future<void> _initializeLocation() async {
+    // First try to get the last saved location
+    final savedLocation = await _locationService.getLastSavedLocation();
+    setState(() {
+      _currentStreet = savedLocation['street'] as String;
+      _isLocationEnabled = savedLocation['isLocationEnabled'] as bool;
+    });
+
+    // Initialize location service (starts listening in background)
+    await _locationService.initialize();
+
+    // Force immediate location update if location is enabled
+    if (_isLocationEnabled) {
+      // Get current location with high accuracy
+      final position = await _locationService.getCurrentLocation(
+        requestPermission: true,
+      );
+      if (position != null) {
+        // Update UI immediately
+        _updateLocationDisplay();
+      }
+    }
+  }
+
+  // Update location display based on latest data
+  Future<void> _updateLocationDisplay() async {
+    final savedLocation = await _locationService.getLastSavedLocation();
+
+    // Only update if we have valid data
+    if (savedLocation['street'] != null) {
+      setState(() {
+        _currentStreet = savedLocation['street'] as String;
+        _isLocationEnabled = savedLocation['isLocationEnabled'] as bool;
+      });
+
+      // Debug info would go here in development
+      // We would use a proper logging framework in production
+    }
+  }
+
+  // Update greeting based on time of day
+  void _updateGreeting() {
+    final hour = DateTime.now().hour;
+
+    String greeting;
+    if (hour >= 5 && hour < 12) {
+      greeting = 'Доброе утро';
+    } else if (hour >= 12 && hour < 17) {
+      greeting = 'Добрый день';
+    } else if (hour >= 17 && hour < 21) {
+      greeting = 'Добрый вечер';
+    } else {
+      greeting = 'Спокойной ночи';
+    }
+
+    setState(() {
+      _greeting = greeting;
+    });
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
+    // Note: We don't dispose LocationService here because it's a singleton
+    // and should continue running in the background
     super.dispose();
   }
 
@@ -95,9 +201,11 @@ class _HomePageState extends State<HomePage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Good morning, Alex',
-                            style: TextStyle(
+                          Text(
+                            _isLoggedIn && _userName != null
+                                ? '$_greeting, $_userName'
+                                : _greeting,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
                               color: Colors.black87,
@@ -106,15 +214,43 @@ class _HomePageState extends State<HomePage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(
-                                Icons.location_on,
-                                size: 16,
-                                color: Theme.of(context).primaryColor,
+                              Stack(
+                                children: [
+                                  Icon(
+                                    Iconsax.location,
+                                    size: 16,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  if (!_isLocationEnabled)
+                                    Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 6,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               const SizedBox(width: 4),
-                              const Text(
-                                'Tashkent',
-                                style: TextStyle(
+                              Text(
+                                _currentStreet,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.blueGrey,
@@ -126,10 +262,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(
-                          Iconsax.notification_bing_bold,
-                          color: Colors.black87,
-                        ),
+                        icon: Icon(Iconsax.notification, color: Colors.black87),
                       ),
                     ],
                   ),
@@ -147,8 +280,8 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.grey.shade500,
                           fontSize: 16,
                         ),
-                        prefixIcon: const Icon(
-                          Icons.search,
+                        prefixIcon: Icon(
+                          Iconsax.search_normal,
                           color: Colors.grey,
                         ),
                         border: InputBorder.none,
@@ -274,7 +407,7 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha(51), // 0.2 * 255 = 51
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
