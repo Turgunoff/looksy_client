@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:looksy_client/features/home/data/salon_repository.dart';
 import 'package:looksy_client/features/home/models/salon_model.dart';
+import 'package:looksy_client/features/home/presentation/supabase_test_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
