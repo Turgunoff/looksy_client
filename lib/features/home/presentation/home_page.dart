@@ -5,6 +5,7 @@ import 'package:looksy_client/features/home/data/salon_repository.dart';
 import 'package:looksy_client/features/home/models/salon_model.dart';
 import 'package:looksy_client/features/location/services/location_service.dart';
 import 'package:looksy_client/features/profile/services/user_profile_service.dart';
+import 'package:looksy_client/features/services/presentation/all_services_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -172,6 +173,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -219,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                                   Icon(
                                     Iconsax.location,
                                     size: 16,
-                                    color: Theme.of(context).primaryColor,
+                                    color: const Color(0xFF000080), // Navy blue
                                   ),
                                   if (!_isLocationEnabled)
                                     Positioned(
@@ -253,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.blueGrey,
+                                  color: Color(0xFF000080), // Navy blue
                                 ),
                               ),
                             ],
@@ -262,7 +264,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                       IconButton(
                         onPressed: () {},
-                        icon: Icon(Iconsax.notification, color: Colors.black87),
+                        icon: Icon(
+                          Iconsax.notification,
+                          color: const Color(0xFF000080),
+                        ),
                       ),
                     ],
                   ),
@@ -282,7 +287,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         prefixIcon: Icon(
                           Iconsax.search_normal,
-                          color: Colors.grey,
+                          color: const Color(0xFF000080),
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -310,16 +315,29 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                     height: 160,
                     width: double.infinity,
-                    color: const Color(0xFF1D2951),
+                    color: const Color(0xFF000080), // Navy blue
                     child: Stack(
                       children: [
                         Positioned(
                           right: 0,
                           bottom: 0,
                           top: 0,
-                          child: Image.network(
-                            'https://i.ibb.co/DpLx5F9/barber.jpg',
+                          child: Image.asset(
+                            'assets/images/barber_placeholder.jpg',
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 120,
+                                color: Colors.grey.shade300,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         Padding(
@@ -329,7 +347,7 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
-                                '30% OFF',
+                                '30% CHEGIRMA',
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -338,7 +356,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'First Visit',
+                                'Birinchi tashrif uchun',
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.white,
@@ -351,31 +369,57 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
+                // Services categories
                 const Text(
-                  'Eng mashhur salonlar',
+                  'Servislar',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
-                  height: 200,
+                  height: 100,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildServiceCategory('Soch', Icons.content_cut, () {
+                        // Navigate to hair services
+                      }),
+                      _buildServiceCategory('Massaj', Icons.spa, () {
+                        // Navigate to massage services
+                      }),
+                      _buildServiceCategory('Tirnoq', Icons.brush, () {
+                        // Navigate to nail services
+                      }),
+                      _buildServiceCategory('Boshqa', Icons.more_horiz, () {
+                        // Navigate to all services screen
+                        _navigateToAllServices();
+                      }),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Top Rated Salons',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 320, // Balandlikni yanada oshiramiz
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                    ), // Vertical padding qo'shamiz
                     itemCount: _salons.length,
                     itemBuilder: (context, index) {
                       final salon = _salons[index];
-                      return _buildSalonCard(salon);
+                      return _buildModernSalonCard(salon);
                     },
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Mashhur xizmatlar',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildPopularServices(),
                 const SizedBox(height: 24),
                 const Text(
                   'Yaqin atrofdagi salonlar',
@@ -399,53 +443,206 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSalonCard(SalonModel salon) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(51), // 0.2 * 255 = 51
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
+  Widget _buildModernSalonCard(SalonModel salon) {
+    return GestureDetector(
+      onTap: () {
+        // Navigate to salon details
+      },
+      child: Container(
+        width: 280,
+        margin: const EdgeInsets.only(right: 20, bottom: 10, top: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(25), // Soyani kuchaytirdik
+              spreadRadius: 0,
+              blurRadius: 3,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Container(
-                color: Colors.grey.shade300,
-                width: double.infinity,
-                child: const Center(
-                  child: Icon(Icons.spa, size: 40, color: Colors.pink),
+            // Image section with rounded corners only at the top
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                  child: SizedBox(
+                    height: 160,
+                    width: double.infinity,
+                    child:
+                        salon.imageUrl.isNotEmpty
+                            ? Image.network(
+                              salon.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey.shade200,
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.spa,
+                                      size: 40,
+                                      color: const Color(0xFF000080),
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                            : Container(
+                              color: Colors.grey.shade200,
+                              child: Center(
+                                child: Icon(
+                                  Icons.spa,
+                                  size: 40,
+                                  color: const Color(0xFF000080),
+                                ),
+                              ),
+                            ),
+                  ),
+                ),
+                // Add a favorite button overlay
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    height: 36,
+                    width: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(26), // 0.1 * 255 = ~26
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.favorite_border,
+                      size: 18,
+                      color: const Color(0xFF000080),
+                    ),
+                  ),
+                ),
+                // Rating badge
+                Positioned(
+                  bottom: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(26), // 0.1 * 255 = ~26
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Color(0xFFFFD700),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          salon.rating.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Salon name
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
+              child: Text(
+                salon.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: -0.3,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            // Services tags
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              child: SizedBox(
+                height: 24, // Aniq balandlik beramiz
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children:
+                      salon.services.take(2).map((service) {
+                        return Container(
+                          margin: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE6E6F2), // Light navy blue
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            service,
+                            style: const TextStyle(
+                              color: Color(0xFF000080), // Navy blue
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
+
+            // Location with icon
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Row(
                 children: [
-                  Text(
-                    salon.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 14,
+                    color: const Color(0xFF000080),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 16, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(salon.rating.toString()),
-                    ],
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      salon.address.split(',').first,
+                      style: TextStyle(
+                        color: const Color(0xFF000080),
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -469,7 +666,7 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Center(
-            child: Icon(Icons.spa, size: 30, color: Colors.pink),
+            child: Icon(Icons.spa, size: 30, color: Color(0xFF000080)),
           ),
         ),
         title: Text(
@@ -484,7 +681,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.star, size: 16, color: Colors.amber),
+                const Icon(Icons.star, size: 16, color: Color(0xFF000080)),
                 const SizedBox(width: 4),
                 Text('${salon.rating} • ${salon.services.first}'),
               ],
@@ -499,44 +696,35 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildPopularServices() {
-    final services = [
-      {'name': 'Soch kesish', 'icon': Icons.content_cut},
-      {'name': 'Manikur', 'icon': Icons.spa},
-      {'name': 'Makiyaj', 'icon': Icons.face},
-      {'name': 'Massaj', 'icon': Icons.airline_seat_flat},
-    ];
-
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: services.length,
-        itemBuilder: (context, index) {
-          final service = services[index];
-          return Container(
-            width: 100,
-            margin: const EdgeInsets.only(right: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.pink.shade100,
-                  child: Icon(service['icon'] as IconData, color: Colors.pink),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  service['name'] as String,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+  Widget _buildServiceCategory(String name, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6E6F2), // Light navy blue
+              shape: BoxShape.circle,
             ),
-          );
-        },
+            child: Icon(icon, color: const Color(0xFF000080), size: 32),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
       ),
     );
+  }
+
+  void _navigateToAllServices() {
+    // Navigate to the AllServicesPage
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const AllServicesPage()));
   }
 }

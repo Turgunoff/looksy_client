@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Asosiy rang - Teal (#008080)
-  static const Color primaryColor = Color(0xFF008080);
+  // Asosiy rang - Navy Blue (#000080)
+  static const Color primaryColor = Color(0xFF000080);
   static const Color primaryLightColor = Color(
-    0xFF4FB3B3,
-  ); // Teal rangining ochroq varianti
+    0xFF3333A0,
+  ); // Navy Blue rangining ochroq varianti
   static const Color primaryDarkColor = Color(
-    0xFF006666,
-  ); // Teal rangining to'qroq varianti
+    0xFF000066,
+  ); // Navy Blue rangining to'qroq varianti
+
+  // Qo'shimcha ranglar
+  static const Color lightNavyBlue = Color(0xFFE6E6F2); // Juda och ko'k
 
   // Zamonaviy UI uchun qo'shimcha ranglar
   static const Color surfaceColor = Color(
@@ -38,10 +41,10 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Color.fromARGB(204, 66, 66, 66)),
-        actionsIconTheme: IconThemeData(color: primaryColor),
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.white),
+        actionsIconTheme: IconThemeData(color: Colors.white),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -74,6 +77,12 @@ class AppTheme {
         selectedItemColor: primaryColor,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 8,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(foregroundColor: primaryColor),
@@ -82,6 +91,21 @@ class AppTheme {
         color: Color.fromARGB(204, 66, 66, 66),
       ), // 80% opacity
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primaryColor),
+      cardTheme: CardTheme(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white,
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return primaryColor;
+          }
+          return Colors.white;
+        }),
+        checkColor: WidgetStateProperty.all(Colors.white),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
     );
   }
 
@@ -101,8 +125,10 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        iconTheme: IconThemeData(color: Color.fromARGB(230, 224, 224, 224)),
-        actionsIconTheme: IconThemeData(color: primaryLightColor),
+        backgroundColor: primaryDarkColor,
+        foregroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.white),
+        actionsIconTheme: IconThemeData(color: Colors.white),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -133,8 +159,14 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: primaryLightColor,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.grey.shade600,
         type: BottomNavigationBarType.fixed,
+        backgroundColor: darkSurfaceColor,
+        elevation: 8,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primaryLightColor,
+        foregroundColor: Colors.white,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(foregroundColor: primaryLightColor),
@@ -144,6 +176,21 @@ class AppTheme {
       ), // 90% opacity
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: primaryLightColor,
+      ),
+      cardTheme: CardTheme(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Color(0xFF1E1E3A), // Slightly lighter than dark surface
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return primaryLightColor;
+          }
+          return Color(0xFF1E1E3A);
+        }),
+        checkColor: WidgetStateProperty.all(Colors.white),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
     );
   }
