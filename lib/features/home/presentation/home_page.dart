@@ -310,7 +310,7 @@ class _HomePageState extends State<HomePage> {
 
                 // Promotion banner
                 Container(
-                  height: 180,
+                  height: 160,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
@@ -370,11 +370,11 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Image.asset(
                             'assets/images/barber_placeholder.jpg',
-                            width: 160,
+                            width: 140,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
-                                width: 160,
+                                width: 140,
                                 color: const Color(0xFF3333A0),
                                 child: const Center(
                                   child: Icon(
@@ -390,15 +390,15 @@ class _HomePageState extends State<HomePage> {
                       ),
                       // Content
                       Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                                horizontal: 10,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withAlpha(30),
@@ -407,36 +407,36 @@ class _HomePageState extends State<HomePage> {
                               child: const Text(
                                 'MAXSUS TAKLIF',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  letterSpacing: 1.2,
+                                  letterSpacing: 1.0,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 8),
                             const Text(
                               '30% CHEGIRMA',
                               style: TextStyle(
-                                fontSize: 28,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             const Text(
                               'Birinchi tashrif uchun',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
+                                horizontal: 14,
+                                vertical: 6,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -445,7 +445,7 @@ class _HomePageState extends State<HomePage> {
                               child: const Text(
                                 'Hoziroq band qiling',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF000080),
                                 ),
