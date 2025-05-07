@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -130,7 +129,6 @@ class LocationService {
         await _saveLocationToPrefs(position);
         return position;
       } catch (e) {
-        // Silently handle error
         return null;
       }
     }

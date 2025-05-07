@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
             title: 'Looksy',
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode: themeMode, //1
+            themeMode: themeMode,
             routerConfig: AppRouter.router,
           );
         },

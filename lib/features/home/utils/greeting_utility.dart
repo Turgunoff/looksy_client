@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class GreetingUtility {
   // Get greeting based on current time
   static String getTimeBasedGreeting() {
