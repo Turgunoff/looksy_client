@@ -206,11 +206,7 @@ class _HomePageState extends State<HomePage> {
                             _isLoggedIn && _userName != null
                                 ? '$_greeting, $_userName'
                                 : _greeting,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           const SizedBox(height: 2),
                           Row(
@@ -251,11 +247,8 @@ class _HomePageState extends State<HomePage> {
                               const SizedBox(width: 4),
                               Text(
                                 _currentStreet,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF000080), // Navy blue
-                                ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(color: const Color(0xFF000080)),
                               ),
                             ],
                           ),
@@ -464,12 +457,9 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Xizmatlar',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.displaySmall,
                       ),
                       TextButton(
                         onPressed: () {
@@ -559,7 +549,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Yaqin atrofdagi sartaroshlar',
+                        'Sizga yaqin sartaroshlar',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,

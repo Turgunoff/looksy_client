@@ -35,24 +35,39 @@ class LocationService {
   static const String _locationAddressKey = 'location_address';
   static const String _locationTimestampKey = 'location_timestamp';
 
-  // Coordinates of Uzbekistan's bounding box (approximate)
-  final Map<String, double> _uzbekistanBounds = {
-    'minLat': 37.1821, // Southernmost point
-    'maxLat': 45.5886, // Northernmost point
-    'minLng': 55.9966, // Westernmost point
-    'maxLng': 73.1322, // Easternmost point
-  };
-
   // Initialize location service
   Future<void> initialize() async {
-    // Check current status
-    _checkLocationServiceStatus();
+    try {
+      print('Initializing location service...');
 
-    // Start listening to service status changes
-    _listenToServiceStatusChanges();
+      // Check current status
+      bool serviceEnabled = await _checkLocationServiceStatus();
+      print('Location service enabled: $serviceEnabled');
 
-    // Start location updates if possible
-    await startLocationUpdates(requestPermission: false);
+      // Start listening to service status changes
+      _listenToServiceStatusChanges();
+
+      // Request permissions explicitly
+      LocationPermission permission = await Geolocator.checkPermission();
+      print('Initial permission status: $permission');
+
+      if (permission == LocationPermission.denied) {
+        print('Requesting location permission...');
+        permission = await Geolocator.requestPermission();
+        print('Permission after request: $permission');
+      }
+
+      // Start location updates if possible
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        print('Starting location updates...');
+        await startLocationUpdates(requestPermission: false);
+      } else {
+        print('Location permission not granted: $permission');
+      }
+    } catch (e) {
+      print('Error initializing location service: $e');
+    }
   }
 
   // Check if location services are enabled
@@ -85,108 +100,205 @@ class LocationService {
 
   // Get the current location
   Future<Position?> getCurrentLocation({bool requestPermission = true}) async {
-    // Check if location services are enabled
-    bool serviceEnabled = await _checkLocationServiceStatus();
-    if (!serviceEnabled) {
-      return null;
-    }
+    try {
+      print('Getting current location...');
 
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied && requestPermission) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+      // Check if location services are enabled
+      bool serviceEnabled = await _checkLocationServiceStatus();
+      print('Location service enabled: $serviceEnabled');
+
+      if (!serviceEnabled) {
+        print('Location services are disabled');
         return null;
       }
-    } else if (permission == LocationPermission.denied && !requestPermission) {
-      return null;
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      return null;
-    }
+      // Check permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      print('Current permission status: $permission');
 
-    // Get the current position with high accuracy
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 5),
-      );
+      if (permission == LocationPermission.denied && requestPermission) {
+        print('Requesting location permission...');
+        permission = await Geolocator.requestPermission();
+        print('Permission after request: $permission');
 
-      // Save and broadcast the position
-      _locationController.add(position);
-      await _saveLocationToPrefs(position);
-      return position;
-    } catch (e) {
-      // If high accuracy fails or times out, try with lower accuracy
+        if (permission == LocationPermission.denied) {
+          print('Location permissions are denied');
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print('Location permissions are permanently denied');
+        return null;
+      }
+
+      print('Getting current position with high accuracy...');
+      // Get the current position with high accuracy
       try {
         final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low,
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 30), // Increased timeout
         );
 
+        print(
+          'Successfully got position: ${position.latitude}, ${position.longitude}',
+        );
         // Save and broadcast the position
         _locationController.add(position);
         await _saveLocationToPrefs(position);
         return position;
       } catch (e) {
-        return null;
+        print('Error getting high accuracy position: $e');
+        print('Trying with low accuracy...');
+
+        // If high accuracy fails, try with lower accuracy
+        try {
+          final position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.low,
+            timeLimit: const Duration(seconds: 30), // Increased timeout
+          );
+
+          print(
+            'Successfully got position with low accuracy: ${position.latitude}, ${position.longitude}',
+          );
+          // Save and broadcast the position
+          _locationController.add(position);
+          await _saveLocationToPrefs(position);
+          return position;
+        } catch (e) {
+          print('Error getting low accuracy position: $e');
+          // Try one last time with lowest accuracy
+          try {
+            final position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.lowest,
+              timeLimit: const Duration(seconds: 30), // Increased timeout
+            );
+            print(
+              'Successfully got position with lowest accuracy: ${position.latitude}, ${position.longitude}',
+            );
+            _locationController.add(position);
+            await _saveLocationToPrefs(position);
+            return position;
+          } catch (e) {
+            print('Error getting lowest accuracy position: $e');
+            return null;
+          }
+        }
       }
+    } catch (e) {
+      print('Error in getCurrentLocation: $e');
+      return null;
     }
   }
 
   // Start listening to location changes
   Future<void> startLocationUpdates({bool requestPermission = true}) async {
-    // Cancel any existing subscription
-    await _positionStreamSubscription?.cancel();
-    _positionStreamSubscription = null;
+    try {
+      print('Starting location updates...');
 
-    // Check if location services are enabled
-    bool serviceEnabled = await _checkLocationServiceStatus();
-    if (!serviceEnabled) {
-      return;
-    }
+      // Cancel any existing subscription
+      await _positionStreamSubscription?.cancel();
+      _positionStreamSubscription = null;
 
-    // Check permissions first
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied && requestPermission) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+      // Check if location services are enabled
+      bool serviceEnabled = await _checkLocationServiceStatus();
+      print('Location service enabled: $serviceEnabled');
+
+      if (!serviceEnabled) {
+        print('Location services are disabled');
         return;
       }
-    } else if (permission == LocationPermission.denied && !requestPermission) {
-      return;
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
+      // Check permissions first
+      LocationPermission permission = await Geolocator.checkPermission();
+      print('Current permission status: $permission');
 
-    // Listen to location changes with medium accuracy
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.medium,
-        distanceFilter: 100, // Update every 100m
-        timeLimit: Duration(seconds: 30), // Timeout for getting location
-      ),
-    ).listen(
-      (Position position) {
-        _locationController.add(position);
-        _saveLocationToPrefs(position);
-      },
-      onError: (error) {
-        // If there's an error, try with lower accuracy
-        _positionStreamSubscription?.cancel();
-        _positionStreamSubscription = Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.low,
-            distanceFilter: 200, // Update every 200m
-          ),
-        ).listen((Position position) {
+      if (permission == LocationPermission.denied && requestPermission) {
+        print('Requesting location permission...');
+        permission = await Geolocator.requestPermission();
+        print('Permission after request: $permission');
+
+        if (permission == LocationPermission.denied) {
+          print('Location permissions are denied');
+          return;
+        }
+      } else if (permission == LocationPermission.denied &&
+          !requestPermission) {
+        print('Location permissions are denied and not requesting');
+        return;
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print('Location permissions are permanently denied');
+        return;
+      }
+
+      print('Starting position stream...');
+
+      // First try to get current position
+      try {
+        print('Attempting to get initial position...');
+        final initialPosition = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 30), // Increased timeout
+        );
+        print(
+          'Got initial position: ${initialPosition.latitude}, ${initialPosition.longitude}',
+        );
+        _locationController.add(initialPosition);
+        await _saveLocationToPrefs(initialPosition);
+      } catch (e) {
+        print('Error getting initial position: $e');
+        // Try with lower accuracy if high accuracy fails
+        try {
+          final initialPosition = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.low,
+            timeLimit: const Duration(seconds: 30),
+          );
+          print(
+            'Got initial position with low accuracy: ${initialPosition.latitude}, ${initialPosition.longitude}',
+          );
+          _locationController.add(initialPosition);
+          await _saveLocationToPrefs(initialPosition);
+        } catch (e) {
+          print('Error getting initial position with low accuracy: $e');
+        }
+      }
+
+      // Start listening to location updates
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10, // Update every 10 meters
+          timeLimit: Duration(seconds: 30), // Increased timeout
+        ),
+      ).listen(
+        (Position position) {
+          print(
+            'Received location update: ${position.latitude}, ${position.longitude}',
+          );
           _locationController.add(position);
           _saveLocationToPrefs(position);
-        });
-      },
-    );
+        },
+        onError: (error) {
+          print('Error getting location updates: $error');
+          // Try to restart location updates after a delay
+          Future.delayed(const Duration(seconds: 5), () {
+            print('Attempting to restart location updates...');
+            startLocationUpdates(requestPermission: false);
+          });
+        },
+        cancelOnError: false, // Don't cancel on error
+      );
+      print('Position stream started successfully');
+    } catch (e) {
+      print('Error starting location updates: $e');
+      // Try to restart after a delay
+      Future.delayed(const Duration(seconds: 5), () {
+        print('Attempting to restart location service after error...');
+        startLocationUpdates(requestPermission: false);
+      });
+    }
   }
 
   // Get street address from coordinates using geocoding
@@ -194,89 +306,63 @@ class LocationService {
     Position position,
   ) async {
     try {
-      // Check if position is within Uzbekistan bounds
-      if (position.latitude >= _uzbekistanBounds['minLat']! &&
-          position.latitude <= _uzbekistanBounds['maxLat']! &&
-          position.longitude >= _uzbekistanBounds['minLng']! &&
-          position.longitude <= _uzbekistanBounds['maxLng']!) {
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-          position.latitude,
-          position.longitude,
-        );
+      print(
+        'Getting address for coordinates: ${position.latitude}, ${position.longitude}',
+      );
 
-        if (placemarks.isNotEmpty) {
-          Placemark place = placemarks.first;
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
 
-          // Get street name - try multiple fields
-          String street = '';
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        print('Got placemark: ${place.toJson()}');
 
-          // First try street
-          if (place.street != null && place.street!.isNotEmpty) {
-            street = place.street!;
-          }
-          // Then try thoroughfare (main road)
-          else if (place.thoroughfare != null &&
-              place.thoroughfare!.isNotEmpty) {
-            street = place.thoroughfare!;
-          }
-          // Then try subThoroughfare (street number)
-          else if (place.subThoroughfare != null &&
-              place.subThoroughfare!.isNotEmpty) {
-            street = place.subThoroughfare!;
-          }
+        // Get street name - try multiple fields
+        String street = '';
 
-          // If we still don't have a street name, create one from the coordinates
-          if (street.isEmpty) {
-            // Format coordinates to 4 decimal places for readability
-            final lat = position.latitude.toStringAsFixed(4);
-            final lng = position.longitude.toStringAsFixed(4);
-            street = 'Точка $lat, $lng';
-          }
-
-          // Get full address
-          String address = '';
-
-          // Build a comprehensive address
-          List<String> addressParts = [];
-
-          if (place.name != null && place.name!.isNotEmpty) {
-            addressParts.add(place.name!);
-          }
-          if (place.street != null && place.street!.isNotEmpty) {
-            addressParts.add(place.street!);
-          }
-          if (place.subLocality != null && place.subLocality!.isNotEmpty) {
-            addressParts.add(place.subLocality!);
-          }
-          if (place.locality != null && place.locality!.isNotEmpty) {
-            addressParts.add(place.locality!);
-          }
-          if (place.subAdministrativeArea != null &&
-              place.subAdministrativeArea!.isNotEmpty) {
-            addressParts.add(place.subAdministrativeArea!);
-          }
-          if (place.administrativeArea != null &&
-              place.administrativeArea!.isNotEmpty) {
-            addressParts.add(place.administrativeArea!);
-          }
-
-          // Join all parts with commas
-          address = addressParts.join(', ');
-
-          // If address is still empty, use the street name
-          if (address.isEmpty) {
-            address = street;
-          }
-
-          return {'street': street, 'address': address};
+        // First try thoroughfare (main road)
+        if (place.thoroughfare != null && place.thoroughfare!.isNotEmpty) {
+          street = place.thoroughfare!;
         }
+        // Then try subLocality (district/neighborhood)
+        else if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+          street = place.subLocality!;
+        }
+        // Then try locality (city)
+        else if (place.locality != null && place.locality!.isNotEmpty) {
+          street = place.locality!;
+        }
+        // Then try administrativeArea (region/state)
+        else if (place.administrativeArea != null &&
+            place.administrativeArea!.isNotEmpty) {
+          street = place.administrativeArea!;
+        }
+        // Finally try country
+        else if (place.country != null && place.country!.isNotEmpty) {
+          street = place.country!;
+        }
+
+        // If we still don't have a street name, create one from the coordinates
+        if (street.isEmpty) {
+          street =
+              'Location ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+        }
+
+        return {'street': street, 'address': street};
       }
     } catch (e) {
-      // Handle error silently and return default values
+      print('Error getting address from coordinates: $e');
     }
 
-    // Default values if geocoding fails or position is outside Uzbekistan
-    return {'street': 'улица Навои', 'address': 'Ташкент, Узбекистан'};
+    // Default values if geocoding fails
+    return {
+      'street':
+          'Location ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
+      'address':
+          'Location ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
+    };
   }
 
   // Save location to SharedPreferences
@@ -297,11 +383,13 @@ class LocationService {
     final addressInfo = await _getAddressFromCoordinates(position);
     await prefs.setString(
       _locationStreetKey,
-      addressInfo['street'] ?? 'улица Навои',
+      addressInfo['street'] ??
+          'Location ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
     );
     await prefs.setString(
       _locationAddressKey,
-      addressInfo['address'] ?? 'Ташкент, Узбекистан',
+      addressInfo['address'] ??
+          'Coordinates: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
     );
   }
 
@@ -310,10 +398,15 @@ class LocationService {
     final prefs = await SharedPreferences.getInstance();
     final latitude = prefs.getDouble(_locationLatKey);
     final longitude = prefs.getDouble(_locationLongKey);
-    final city = prefs.getString(_locationCityKey) ?? 'Ташкент';
-    final street = prefs.getString(_locationStreetKey) ?? 'улица Навои';
+
+    // Format coordinates for display
+    final lat = latitude?.toStringAsFixed(4) ?? '0.0000';
+    final lng = longitude?.toStringAsFixed(4) ?? '0.0000';
+
+    final city = prefs.getString(_locationCityKey) ?? 'Location $lat, $lng';
+    final street = prefs.getString(_locationStreetKey) ?? 'Location $lat, $lng';
     final address =
-        prefs.getString(_locationAddressKey) ?? 'Ташкент, Узбекистан';
+        prefs.getString(_locationAddressKey) ?? 'Coordinates: $lat, $lng';
     final timestamp = prefs.getInt(_locationTimestampKey) ?? 0;
 
     // Check if location services are currently enabled
@@ -333,49 +426,55 @@ class LocationService {
   // Get city name from coordinates
   Future<String> _getCityFromCoordinates(Position position) async {
     try {
-      // Check if position is within Uzbekistan bounds
-      if (position.latitude >= _uzbekistanBounds['minLat']! &&
-          position.latitude <= _uzbekistanBounds['maxLat']! &&
-          position.longitude >= _uzbekistanBounds['minLng']! &&
-          position.longitude <= _uzbekistanBounds['maxLng']!) {
-        // Use geocoding to get the city name
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-          position.latitude,
-          position.longitude,
-        );
+      print(
+        'Getting city for coordinates: ${position.latitude}, ${position.longitude}',
+      );
 
-        if (placemarks.isNotEmpty) {
-          Placemark place = placemarks.first;
+      // Use geocoding to get the city name
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
 
-          // Try to get city name from different fields
-          String city = '';
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        print('Got placemark: ${place.toJson()}');
 
-          // First try locality (city)
-          if (place.locality != null && place.locality!.isNotEmpty) {
-            city = place.locality!;
-          }
-          // Then try subAdministrativeArea (district/region)
-          else if (place.subAdministrativeArea != null &&
-              place.subAdministrativeArea!.isNotEmpty) {
-            city = place.subAdministrativeArea!;
-          }
-          // Then try administrativeArea (province/region)
-          else if (place.administrativeArea != null &&
-              place.administrativeArea!.isNotEmpty) {
-            city = place.administrativeArea!;
-          }
+        // Try to get city name from different fields
+        String city = '';
 
-          if (city.isNotEmpty) {
-            return city;
-          }
+        // First try locality (city)
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          city = place.locality!;
+        }
+        // Then try subAdministrativeArea (district/region)
+        else if (place.subAdministrativeArea != null &&
+            place.subAdministrativeArea!.isNotEmpty) {
+          city = place.subAdministrativeArea!;
+        }
+        // Then try administrativeArea (province/region)
+        else if (place.administrativeArea != null &&
+            place.administrativeArea!.isNotEmpty) {
+          city = place.administrativeArea!;
+        }
+        // Then try country
+        else if (place.country != null && place.country!.isNotEmpty) {
+          city = place.country!;
+        }
+
+        if (city.isNotEmpty) {
+          print('Returning city: $city');
+          return city;
         }
       }
     } catch (e) {
-      // Handle error silently
+      print('Error getting city from coordinates: $e');
     }
 
-    // Default to Tashkent if geocoding fails or position is outside Uzbekistan
-    return 'Ташкент';
+    // Default to coordinates if geocoding fails
+    final lat = position.latitude.toStringAsFixed(4);
+    final lng = position.longitude.toStringAsFixed(4);
+    return 'Location $lat, $lng';
   }
 
   // Dispose resources
