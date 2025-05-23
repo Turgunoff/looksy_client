@@ -221,16 +221,6 @@ class ProfilePage extends StatelessWidget {
                       },
                       child: const Text('Kirish'),
                     ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        // Continue as guest
-                        context.read<AuthBloc>().add(
-                          const LoginAsGuestRequested(),
-                        );
-                      },
-                      child: const Text('Mehmon sifatida davom etish'),
-                    ),
                     const SizedBox(height: 24),
                     const Divider(),
                   ],

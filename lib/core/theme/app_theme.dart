@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Asosiy rang - Navy Blue (#000080)
-  static const Color primaryColor = Color(0xFF000080);
+  // Asosiy rang - Green (#18a137)
+  static const Color primaryColor = Color(0xFF18a137);
   static const Color primaryLightColor = Color(
-    0xFF3333A0,
-  ); // Navy Blue rangining ochroq varianti
+    0xFF4CAF50,
+  ); // Green rangining ochroq varianti
   static const Color primaryDarkColor = Color(
-    0xFF000066,
-  ); // Navy Blue rangining to'qroq varianti
+    0xFF0D5C1A,
+  ); // Green rangining to'qroq varianti
 
   // Qo'shimcha ranglar
-  static const Color lightNavyBlue = Color(0xFFE6E6F2); // Juda och ko'k
+  static const Color lightNavyBlue = Color(0xFFE8F5E9); // Juda och yashil
 
   // Zamonaviy UI uchun qo'shimcha ranglar
   static const Color surfaceColor = Color(
