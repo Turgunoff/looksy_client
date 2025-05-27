@@ -122,7 +122,7 @@ class AppTheme {
       ),
       iconTheme: IconThemeData(color: onSurfaceColor),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primaryColor),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: Colors.white,
@@ -229,7 +229,7 @@ class AppTheme {
         checkColor: WidgetStateProperty.all(Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         titleTextStyle: TextStyle(
@@ -265,7 +265,7 @@ class AppTheme {
           return Colors.grey.shade300;
         }),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: primaryColor,
         unselectedLabelColor: Colors.grey.shade600,
         indicatorColor: primaryColor,
@@ -376,7 +376,7 @@ class AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: primaryLightColor,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: darkCardColor,
@@ -483,7 +483,7 @@ class AppTheme {
         checkColor: WidgetStateProperty.all(Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: darkCardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         titleTextStyle: TextStyle(
@@ -522,11 +522,9 @@ class AppTheme {
           return darkCardColor;
         }),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: primaryLightColor,
-        unselectedLabelColor: onDarkSurfaceColor.withAlpha(
-          153,
-        ), // 0.6 * 255 = ~153
+        unselectedLabelColor: onDarkSurfaceColor.withAlpha(153),
         indicatorColor: primaryLightColor,
       ),
       chipTheme: ChipThemeData(

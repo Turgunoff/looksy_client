@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:looksy_client/core/theme/app_theme.dart';
 import 'package:looksy_client/features/auth/bloc/auth_bloc_fixed.dart';
 import 'package:looksy_client/features/auth/bloc/auth_event.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
@@ -104,30 +105,105 @@ class ProfilePage extends StatelessWidget {
               const SizedBox(height: 24),
 
               // App settings section
-              const Text(
-                'Ilova sozlamalari',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              _buildSettingsCard(
-                title: 'Bildirishnomalar',
-                icon: Icons.notifications_outlined,
-                onTap: () {},
-              ),
-              _buildSettingsCard(
-                title: 'Til',
-                icon: Icons.language_outlined,
-                onTap: () {},
-              ),
-              _buildSettingsCard(
-                title: 'Yordam',
-                icon: Icons.help_outline,
-                onTap: () {},
-              ),
-              _buildSettingsCard(
-                title: 'Ilova haqida',
-                icon: Icons.info_outline,
-                onTap: () {},
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 10,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.settings, color: AppTheme.primaryColor),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Ilova sozlamalari',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSettingsTile(
+                      title: 'Bildirishnomalar',
+                      subtitle: 'Bildirishnomalarni boshqarish',
+                      icon: Icons.notifications_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => const NotificationSettingsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildSettingsTile(
+                      title: 'Til',
+                      subtitle: 'Tilni o\'zgartirish',
+                      icon: Icons.language_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LanguageSettingsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildSettingsTile(
+                      title: 'Mavzu',
+                      subtitle: 'Ilova mavzusini o\'zgartirish',
+                      icon: Icons.color_lens_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ThemeSettingsPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildSettingsTile(
+                      title: 'Yordam',
+                      subtitle: 'Ko\'p so\'raladigan savollar',
+                      icon: Icons.help_outline,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HelpPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildSettingsTile(
+                      title: 'Ilova haqida',
+                      subtitle: 'Versiya va litsenziya',
+                      icon: Icons.info_outline,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AboutAppPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -173,18 +249,53 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsCard({
+  Widget _buildSettingsTile({
     required String title,
+    required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.pink),
-        title: Text(title),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: AppTheme.primaryColor),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey.shade400,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -234,8 +345,9 @@ class ProfilePage extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              _buildSettingsCard(
+              _buildSettingsTile(
                 title: 'Mavzu',
+                subtitle: 'Ilova mavzusini o\'zgartirish',
                 icon: Icons.color_lens_outlined,
                 onTap: () {
                   Navigator.push(
@@ -246,8 +358,9 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
-              _buildSettingsCard(
+              _buildSettingsTile(
                 title: 'Til',
+                subtitle: 'Tilni o\'zgartirish',
                 icon: Icons.language_outlined,
                 onTap: () {
                   Navigator.push(
@@ -258,8 +371,9 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
-              _buildSettingsCard(
+              _buildSettingsTile(
                 title: 'Bildirishnomalar',
+                subtitle: 'Bildirishnomalarni boshqarish',
                 icon: Icons.notifications_outlined,
                 onTap: () {
                   Navigator.push(
@@ -270,8 +384,9 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
-              _buildSettingsCard(
+              _buildSettingsTile(
                 title: 'Yordam',
+                subtitle: 'Ko\'p so\'raladigan savollar',
                 icon: Icons.help_outline,
                 onTap: () {
                   Navigator.push(
@@ -280,8 +395,9 @@ class ProfilePage extends StatelessWidget {
                   );
                 },
               ),
-              _buildSettingsCard(
+              _buildSettingsTile(
                 title: 'Ilova haqida',
+                subtitle: 'Versiya va litsenziya',
                 icon: Icons.info_outline,
                 onTap: () {
                   Navigator.push(
