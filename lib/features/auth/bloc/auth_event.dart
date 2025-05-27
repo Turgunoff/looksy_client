@@ -45,3 +45,19 @@ class SignupRequested extends AuthEvent {
   @override
   List<Object?> get props => [email, password, fullName, phoneNumber];
 }
+
+class GoogleLoginRequested extends AuthEvent {
+  const GoogleLoginRequested();
+}
+
+class AppleLoginRequested extends AuthEvent {
+  const AppleLoginRequested();
+}
+
+class FacebookLoginRequested extends AuthEvent {
+  const FacebookLoginRequested();
+}
+
+class TelegramLoginRequested extends AuthEvent {
+  const TelegramLoginRequested();
+}

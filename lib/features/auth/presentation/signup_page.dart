@@ -5,6 +5,7 @@ import 'package:looksy_client/core/theme/app_theme.dart';
 import 'package:looksy_client/features/auth/bloc/auth_bloc_fixed.dart';
 import 'package:looksy_client/features/auth/bloc/auth_event.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
+import 'package:looksy_client/features/auth/presentation/widgets/social_login_buttons.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -52,10 +53,32 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
+  void _handleGoogleLogin() {
+    context.read<AuthBloc>().add(const GoogleLoginRequested());
+  }
+
+  void _handleAppleLogin() {
+    context.read<AuthBloc>().add(const AppleLoginRequested());
+  }
+
+  void _handleFacebookLogin() {
+    context.read<AuthBloc>().add(const FacebookLoginRequested());
+  }
+
+  void _handleTelegramLogin() {
+    context.read<AuthBloc>().add(const TelegramLoginRequested());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ro\'yxatdan o\'tish')),
+      appBar: AppBar(
+        title: const Text('Ro\'yxatdan o\'tish'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/login'),
+        ),
+      ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           setState(() {
@@ -209,18 +232,25 @@ class _SignupPageState extends State<SignupPage> {
                           )
                           : Text('Ro\'yxatdan o\'tish'),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Allaqachon hisobingiz bormi?'),
-                    TextButton(
-                      onPressed: () {
-                        context.go('/login');
-                      },
-                      child: Text('Kirish'),
-                    ),
-                  ],
+                // const SizedBox(height: 16),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     Text('Allaqachon hisobingiz bormi?'),
+                //     TextButton(
+                //       onPressed: () {
+                //         context.go('/login');
+                //       },
+                //       child: Text('Kirish'),
+                //     ),
+                //   ],
+                // ),
+
+                SocialLoginButtons(
+                  onGooglePressed: _handleGoogleLogin,
+                  onApplePressed: _handleAppleLogin,
+                  onFacebookPressed: _handleFacebookLogin,
+                  onTelegramPressed: _handleTelegramLogin,
                 ),
               ],
             ),

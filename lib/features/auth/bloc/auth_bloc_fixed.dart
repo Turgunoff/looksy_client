@@ -1,4 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:looksy_client/features/auth/bloc/auth_event.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
 import 'package:looksy_client/features/auth/models/auth_state_model.dart';
@@ -7,15 +10,26 @@ import 'dart:developer' as dev;
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SupabaseClient _supabaseClient;
+  final GoogleSignIn _googleSignIn;
+  final FacebookAuth _facebookAuth;
 
-  AuthBloc({required SupabaseClient supabaseClient})
-    : _supabaseClient = supabaseClient,
-      super(AuthInitial()) {
+  AuthBloc({
+    required SupabaseClient supabaseClient,
+    GoogleSignIn? googleSignIn,
+    FacebookAuth? facebookAuth,
+  }) : _supabaseClient = supabaseClient,
+       _googleSignIn = googleSignIn ?? GoogleSignIn(),
+       _facebookAuth = facebookAuth ?? FacebookAuth.instance,
+       super(AuthInitial()) {
     on<CheckAuthState>(_onCheckAuthState);
     on<LoginRequested>(_onLoginRequested);
     on<LoginAsGuestRequested>(_onLoginAsGuestRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<SignupRequested>(_onSignupRequested);
+    on<GoogleLoginRequested>(_onGoogleLoginRequested);
+    on<AppleLoginRequested>(_onAppleLoginRequested);
+    on<FacebookLoginRequested>(_onFacebookLoginRequested);
+    on<TelegramLoginRequested>(_onTelegramLoginRequested);
   }
 
   Future<void> _onCheckAuthState(
@@ -178,6 +192,140 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } catch (e) {
       dev.log('Signup error: $e');
+      emit(Unauthenticated(error: e.toString()));
+    }
+  }
+
+  Future<void> _onGoogleLoginRequested(
+    GoogleLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(AuthLoading(AuthStateModel(status: AuthStatus.initial)));
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        emit(Unauthenticated(error: 'Google sign in was cancelled'));
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      if (accessToken == null || idToken == null) {
+        emit(Unauthenticated(error: 'Failed to get Google credentials'));
+        return;
+      }
+
+      final response = await _supabaseClient.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (response.user != null) {
+        emit(
+          Authenticated(
+            AuthStateModel(
+              status: AuthStatus.authenticated,
+              userId: response.user!.id,
+            ),
+          ),
+        );
+      } else {
+        emit(Unauthenticated(error: 'Google login failed'));
+      }
+    } catch (e) {
+      emit(Unauthenticated(error: e.toString()));
+    }
+  }
+
+  Future<void> _onAppleLoginRequested(
+    AppleLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(AuthLoading(AuthStateModel(status: AuthStatus.initial)));
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final response = await _supabaseClient.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: credential.identityToken!,
+        accessToken: credential.authorizationCode,
+      );
+
+      if (response.user != null) {
+        emit(
+          Authenticated(
+            AuthStateModel(
+              status: AuthStatus.authenticated,
+              userId: response.user!.id,
+            ),
+          ),
+        );
+      } else {
+        emit(Unauthenticated(error: 'Apple login failed'));
+      }
+    } catch (e) {
+      emit(Unauthenticated(error: e.toString()));
+    }
+  }
+
+  Future<void> _onFacebookLoginRequested(
+    FacebookLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(AuthLoading(AuthStateModel(status: AuthStatus.initial)));
+      final LoginResult result = await _facebookAuth.login();
+
+      if (result.status != LoginStatus.success) {
+        emit(Unauthenticated(error: 'Facebook login was cancelled or failed'));
+        return;
+      }
+
+      final AccessToken accessToken = result.accessToken!;
+      final response = await _supabaseClient.auth.signInWithIdToken(
+        provider: OAuthProvider.facebook,
+        idToken: accessToken.token,
+        accessToken: accessToken.token,
+      );
+
+      if (response.user != null) {
+        emit(
+          Authenticated(
+            AuthStateModel(
+              status: AuthStatus.authenticated,
+              userId: response.user!.id,
+            ),
+          ),
+        );
+      } else {
+        emit(Unauthenticated(error: 'Facebook login failed'));
+      }
+    } catch (e) {
+      emit(Unauthenticated(error: e.toString()));
+    }
+  }
+
+  Future<void> _onTelegramLoginRequested(
+    TelegramLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(AuthLoading(AuthStateModel(status: AuthStatus.initial)));
+      // Note: Telegram login requires a custom implementation
+      // as it's not directly supported by Supabase
+      // You'll need to implement a custom OAuth flow for Telegram
+      emit(Unauthenticated(error: 'Telegram login not implemented yet'));
+    } catch (e) {
       emit(Unauthenticated(error: e.toString()));
     }
   }

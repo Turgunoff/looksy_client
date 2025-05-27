@@ -45,6 +45,13 @@ dependencies:
   # Navigation
   go_router: ^13.2.0
 
+  # Social login
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^5.0.0
+  flutter_facebook_auth: ^6.0.4
+  # Removing telegram_client as it's causing conflicts and we can implement Telegram login differently
+  # telegram_client: ^0.1.0
+
   # Utilities
   intl: ^0.19.0
   shared_preferences: ^2.2.2

@@ -12,6 +12,7 @@ class AppConstants {
   static const String chatRoute = '/chat';
   static const String profileRoute = '/profile';
   static const String loginRoute = '/login';
+  static const String signupRoute = '/signup';
 
   // Bottom Navigation Bar Items
   static const int homeTabIndex = 0;

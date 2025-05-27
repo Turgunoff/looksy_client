@@ -5,6 +5,7 @@ import 'package:looksy_client/core/theme/app_theme.dart';
 import 'package:looksy_client/features/auth/bloc/auth_bloc_fixed.dart';
 import 'package:looksy_client/features/auth/bloc/auth_event.dart';
 import 'package:looksy_client/features/auth/bloc/auth_state.dart';
+import 'package:looksy_client/features/auth/presentation/widgets/social_login_buttons.dart';
 import 'dart:developer' as dev;
 
 class LoginPage extends StatefulWidget {
@@ -40,6 +41,22 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+  }
+
+  void _handleGoogleLogin() {
+    context.read<AuthBloc>().add(const GoogleLoginRequested());
+  }
+
+  void _handleAppleLogin() {
+    context.read<AuthBloc>().add(const AppleLoginRequested());
+  }
+
+  void _handleFacebookLogin() {
+    context.read<AuthBloc>().add(const FacebookLoginRequested());
+  }
+
+  void _handleTelegramLogin() {
+    context.read<AuthBloc>().add(const TelegramLoginRequested());
   }
 
   @override
@@ -159,39 +176,25 @@ class _LoginPageState extends State<LoginPage> {
                           : Text('Kirish'),
                 ),
                 const SizedBox(height: 16),
-                OutlinedButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : () {
-                            // First navigate to home page, then trigger guest login
-                            context.go('/');
-                            // Add a small delay to ensure navigation completes first
-                            Future.delayed(
-                              const Duration(milliseconds: 100),
-                              () {
-                                if (context.mounted) {
-                                  context.read<AuthBloc>().add(
-                                    const LoginAsGuestRequested(),
-                                  );
-                                }
-                              },
-                            );
-                          },
-                  child: Text('Mehmon sifatida davom etish'),
-                ),
-                const SizedBox(height: 24),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('Hisobingiz yo\'qmi?'),
                     TextButton(
                       onPressed: () {
-                        context.go('/signup');
+                        context.push('/signup');
                       },
                       child: Text('Ro\'yxatdan o\'tish'),
                     ),
                   ],
+                ),
+
+                SocialLoginButtons(
+                  onGooglePressed: _handleGoogleLogin,
+                  onApplePressed: _handleAppleLogin,
+                  onFacebookPressed: _handleFacebookLogin,
+                  onTelegramPressed: _handleTelegramLogin,
                 ),
               ],
             ),

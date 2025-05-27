@@ -217,7 +217,7 @@ class ProfilePage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Navigate to login page
-                        context.go('/login');
+                        context.push('/login');
                       },
                       child: const Text('Kirish'),
                     ),
