@@ -1,10 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:looksy_client/features/profile/bloc/settings_bloc.dart';
-import 'package:looksy_client/features/profile/bloc/settings_event.dart';
-import 'package:looksy_client/features/profile/bloc/settings_state.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   const NotificationSettingsPage({super.key});

@@ -8,11 +8,11 @@ import 'package:looksy_client/features/profile/bloc/settings_state.dart';
 import 'package:looksy_client/features/profile/models/app_settings_model.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
-  const ThemeSettingsPage({super.key});
+  const ThemeSettingsPage({super.key}); 
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
 
     Widget themeCard({
       required String title,
