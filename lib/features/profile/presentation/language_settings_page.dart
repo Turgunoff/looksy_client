@@ -1,61 +1,125 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:looksy_client/features/profile/bloc/settings_bloc.dart';
 import 'package:looksy_client/features/profile/bloc/settings_event.dart';
 import 'package:looksy_client/features/profile/bloc/settings_state.dart';
 import 'package:looksy_client/features/profile/models/app_settings_model.dart';
+import 'package:looksy_client/core/theme/app_theme.dart';
 
 class LanguageSettingsPage extends StatelessWidget {
   const LanguageSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Widget langCard({
+      required String title,
+      required String flag,
+      required AppLanguage value,
+      required AppLanguage groupValue,
+      required VoidCallback onTap,
+    }) {
+      final bool selected = value == groupValue;
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+          decoration: BoxDecoration(
+            color:
+                selected
+                    ? AppTheme.primaryColor.withOpacity(0.08)
+                    : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? AppTheme.primaryColor : Colors.grey.shade200,
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: [
+              if (selected)
+                BoxShadow(
+                  color: AppTheme.primaryColor.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Text(flag, style: const TextStyle(fontSize: 26)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                    color: selected ? AppTheme.primaryColor : Colors.black,
+                  ),
+                ),
+              ),
+              if (selected)
+                Icon(
+                  Icons.check_circle,
+                  color: AppTheme.primaryColor,
+                  size: 28,
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Til sozlamalari'),
-      ),
+      appBar: AppBar(title: const Text('Til sozlamalari'), elevation: 0),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
-          return ListView(
+          final current = state.settings.language;
+          return Column(
             children: [
-              RadioListTile<AppLanguage>(
-                title: const Text('O\'zbek tili'),
+              const SizedBox(height: 16),
+              langCard(
+                title: "O'zbek tili",
+                flag: "🇺🇿",
                 value: AppLanguage.uzbek,
-                groupValue: state.settings.language,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<SettingsBloc>().add(ChangeLanguage(value));
-                  }
-                },
+                groupValue: current,
+                onTap:
+                    () => context.read<SettingsBloc>().add(
+                      ChangeLanguage(AppLanguage.uzbek),
+                    ),
               ),
-              RadioListTile<AppLanguage>(
-                title: const Text('Русский язык'),
+              langCard(
+                title: "Русский язык",
+                flag: "🇷🇺",
                 value: AppLanguage.russian,
-                groupValue: state.settings.language,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<SettingsBloc>().add(ChangeLanguage(value));
-                  }
-                },
+                groupValue: current,
+                onTap:
+                    () => context.read<SettingsBloc>().add(
+                      ChangeLanguage(AppLanguage.russian),
+                    ),
               ),
-              RadioListTile<AppLanguage>(
-                title: const Text('English'),
+              langCard(
+                title: "English",
+                flag: "🇬🇧",
                 value: AppLanguage.english,
-                groupValue: state.settings.language,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<SettingsBloc>().add(ChangeLanguage(value));
-                  }
-                },
+                groupValue: current,
+                onTap:
+                    () => context.read<SettingsBloc>().add(
+                      ChangeLanguage(AppLanguage.english),
+                    ),
               ),
               const Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(20.0),
                 child: Text(
-                  'Til o\'zgarishlari dasturni qayta ishga tushirgandan so\'ng to\'liq kuchga kiradi.',
+                  "Til o'zgarishlari dasturni qayta ishga tushirgandan so'ng to'liq kuchga kiradi.",
                   style: TextStyle(
                     color: Colors.grey,
                     fontStyle: FontStyle.italic,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],

@@ -1,134 +1,189 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:looksy_client/core/theme/app_theme.dart';
 
 class AboutAppPage extends StatelessWidget {
   const AboutAppPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ilova haqida'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final Color mainColor = AppTheme.primaryColor;
+
+    Widget pillCard({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      Color? iconColor,
+    }) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.07),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
           children: [
-            Center(
+            Icon(icon, color: iconColor ?? mainColor, size: 26),
+            const SizedBox(width: 14),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.pink.shade100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.spa,
-                      size: 60,
-                      color: Colors.pink,
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Looksy',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
-                  const SizedBox(height: 4),
-                  const Text('Versiya 1.0.0'),
-                  const SizedBox(height: 24),
                 ],
-              ),
-            ),
-            const Text(
-              'Ilova haqida',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Looksy - bu go\'zallik salonlari uchun bron qilish ilovasi. Bu ilova orqali siz o\'zingizga yaqin joylashgan salonlarni topishingiz, ularning xizmatlari bilan tanishishingiz va o\'zingizga qulay vaqtda bron qilishingiz mumkin.',
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Bog\'lanish',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildContactItem(
-              icon: Icons.email_outlined,
-              title: 'Email',
-              subtitle: 'support@looksy.uz',
-            ),
-            _buildContactItem(
-              icon: Icons.phone_outlined,
-              title: 'Telefon',
-              subtitle: '+998 XX XXX XX XX',
-            ),
-            _buildContactItem(
-              icon: Icons.language_outlined,
-              title: 'Veb-sayt',
-              subtitle: 'www.looksy.uz',
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Ijtimoiy tarmoqlar',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildContactItem(
-              icon: Icons.telegram,
-              title: 'Telegram',
-              subtitle: '@looksy_uz',
-            ),
-            _buildContactItem(
-              icon: Icons.facebook,
-              title: 'Facebook',
-              subtitle: 'Looksy O\'zbekiston',
-            ),
-            _buildContactItem(
-              icon: Icons.camera_alt_outlined,
-              title: 'Instagram',
-              subtitle: '@looksy_uz',
-            ),
-            const SizedBox(height: 24),
-            const Center(
-              child: Text(
-                '© 2023 Looksy. Barcha huquqlar himoyalangan.',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildContactItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.pink),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      contentPadding: EdgeInsets.zero,
+    return Scaffold(
+      appBar: AppBar(title: const Text('Ilova haqida'), elevation: 0),
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            // Logo va nom
+            Column(
+              children: [
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: mainColor.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.spa, size: 50, color: mainColor),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Looksy',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: mainColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Versiya 1.0.0',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+            // Ilova haqida
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.07),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Text(
+                "Looksy — bu go'zallik salonlari uchun zamonaviy bron qilish ilovasi. Siz yaqin atrofdagi salonlarni topishingiz, xizmatlar bilan tanishishingiz va qulay vaqtda bron qilishingiz mumkin.",
+                style: TextStyle(fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 28),
+            // Kontaktlar
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Bog'lanish",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: mainColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            pillCard(
+              icon: Iconsax.message_2_outline,
+              title: 'Email',
+              subtitle: 'support@looksy.uz',
+            ),
+            pillCard(
+              icon: Iconsax.call_bold,
+              title: 'Telefon',
+              subtitle: '+998 94 643 37 33',
+            ),
+            pillCard(
+              icon: Iconsax.global_bold,
+              title: 'Veb-sayt',
+              subtitle: 'www.looksy.uz',
+            ),
+            const SizedBox(height: 28),
+            // Ijtimoiy tarmoqlar
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Ijtimoiy tarmoqlar",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: mainColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            pillCard(
+              icon: BoxIcons.bxl_telegram,
+              title: 'Telegram',
+              subtitle: '@looksy_uz',
+              iconColor: Colors.blue,
+            ),
+            pillCard(
+              icon: BoxIcons.bxl_facebook,
+              title: 'Facebook',
+              subtitle: 'Looksy O\'zbekiston',
+              iconColor: Colors.blue[800],
+            ),
+            pillCard(
+              icon: BoxIcons.bxl_instagram,
+              title: 'Instagram',
+              subtitle: '@looksy_uz',
+              iconColor: Colors.purple,
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              '© 2025 Looksy. Barcha huquqlar himoyalangan.',
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
     );
   }
 }
