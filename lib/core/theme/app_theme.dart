@@ -38,6 +38,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: 'Raleway',
       scaffoldBackgroundColor: Colors.white,
       colorScheme: ColorScheme(
         brightness: Brightness.light,
